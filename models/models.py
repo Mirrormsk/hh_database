@@ -12,7 +12,8 @@ class Employer(BaseModel):
     description: str
 
     @field_validator("description")
-    def remove_html_tags(self, description_text: str):
+    @staticmethod
+    def remove_html_tags(description_text: str):
         """Removes html tags in description"""
         return re.sub(re.compile("<.*?>"), "", description_text)
 
