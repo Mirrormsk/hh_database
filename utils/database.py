@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 
 def create_database(database_name: str, params: dict) -> None:
-    """Создание базы данных и таблиц для сохранения каналов и видео"""
+    """Creating database with 'employers' and 'vacancies' tables"""
     conn = psycopg2.connect(dbname="postgres", **params)
     conn.autocommit = True
     cur = conn.cursor()
@@ -51,15 +51,17 @@ def create_database(database_name: str, params: dict) -> None:
 
 
 def get_fieldnames(model: BaseModel):
+    """Returns fieldnames of model"""
     return f"({', '.join(key for key in model.model_dump().keys())})"
 
 
 def get_values(model: BaseModel):
+    """Returns string representation for tuple with model values"""
     return str(tuple(model.model_dump().values()))
 
 
 def insert_model(table_name: str, cur: psycopg2.cursor, model: BaseModel):
-
+    """Insert one model to database"""
     # Making string with fieldnames
     fieldnames = get_fieldnames(model)
 
@@ -76,6 +78,10 @@ def insert_model(table_name: str, cur: psycopg2.cursor, model: BaseModel):
 def insert_models_array(
     table_name: str, cur: psycopg2.cursor, models_array: list[BaseModel]
 ):
+    """
+    Insert array of models to database.
+    Uses new fastest 'execute_values' method (from psycopg2 2.7).
+    """
     if models_array:
         fieldnames = get_fieldnames(models_array[0])
 
@@ -85,3 +91,5 @@ def insert_models_array(
 
         # Executing query
         execute_values(cur, query, values)
+    else:
+        raise ValueError("Models array can't be empty")
