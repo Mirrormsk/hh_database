@@ -7,5 +7,5 @@ def test_Employer(employer_json):
 
     assert isinstance(emp, Employer)
     print('Fields:\n')
-    print(f"({', '.join(key for key in emp.model_dump().keys())})")
+    print(tuple(emp.model_dump().values()))
 
