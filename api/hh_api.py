@@ -1,4 +1,4 @@
-from utils.safe_request import get_request_safe
+from utils import get_request_safe
 
 
 class HeadHunterParser:
