@@ -5,7 +5,7 @@ import requests
 from exceptions import ApiConnectionError
 
 
-def get_request_safe(url, headers, params, retry=5):
+def get_request_safe(url, headers, params=None, retry=5):
     """Делает несколько попыток выполнить get-запрос.
     Возбуждает исключение ApiConnectionError в случае неудачи.
     """
