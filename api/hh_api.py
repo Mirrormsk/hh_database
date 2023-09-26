@@ -21,6 +21,7 @@ class HeadHunterParser:
             "only_with_salary": False,
         }
         response = get_request_safe(url=url, headers=self.__headers, params=params)
+
         return response.json()
 
     def get_vacancies_by_employer(self, employer_id: str) -> list[dict]:

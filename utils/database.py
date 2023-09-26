@@ -1,9 +1,7 @@
 import psycopg2
-
+from psycopg2.extensions import cursor
 from psycopg2.extras import execute_values
 from pydantic import BaseModel
-
-from psycopg2.extensions import cursor
 
 
 def create_database(database_name: str, params: dict) -> None:
@@ -77,22 +75,22 @@ def insert_model(table_name: str, cur: cursor, model: BaseModel):
     cur.execute(query, model_values)
 
 
-def insert_models_array(
-    table_name: str, cur: cursor, models_array: list[BaseModel]
-):
+def insert_models_array(table_name: str, cur: cursor, models_array: list[BaseModel]):
     """
     Insert array of models to database.
     Uses new fastest 'execute_values' method (from psycopg2 2.7).
     """
     if models_array:
+        # Getting fieldnames for insert
         fieldnames = get_fieldnames(models_array[0])
 
-        values = [get_values(model) for model in models_array]
+        # Uses set because hh.ru sometimes gives one vacancy on two different pages ¯\_(ツ)_/¯
+        values = set(get_values(model) for model in models_array)
 
+        # Generating query
         query = f"INSERT INTO {table_name} {fieldnames} VALUES %s"
 
         # Executing query
         execute_values(cur, query, values)
     else:
         raise ValueError("Models array can't be empty")
-
