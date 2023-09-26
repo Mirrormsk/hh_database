@@ -4,7 +4,10 @@ from tqdm import tqdm
 from api.hh_api import HeadHunterParser
 from config import config
 from models.models import Employer, Vacancy
-from utils.database import create_database, insert_model, insert_models_array
+from utils.database import (create_database,
+                            insert_model,
+                            insert_models_array,
+                            update_currency_table)
 
 DATABASE_NAME = "headhunter"
 
@@ -36,6 +39,9 @@ def main():
     conn = psycopg2.connect(dbname=DATABASE_NAME, **params)
     with conn.cursor() as cur:
 
+        # Updating currency table
+        update_currency_table(DATABASE_NAME, cur)
+
         # Start to pull data from api
         for employer_name, employer_id in tqdm(favorites.items(), desc="Loading data"):
 
@@ -53,18 +59,18 @@ def main():
                 # Getting company vacancies
                 vacancies_data = api.get_vacancies_by_employer(employer_id)
 
+                # List for Vacancy models
+                vacancies = []
+
+                # Validate each vacancies separately
                 for vacancy in vacancies_data:
                     try:
-                        Vacancy.model_validate(vacancy)
+                        vacancy_obj = Vacancy.model_validate(vacancy)
+                        vacancies.append(vacancy_obj)
                     except Exception as ex:
                         print(f"Error in vacancy:")
                         print(vacancy)
                         print(f"Error message:\n{ex}")
-
-                # Validating vacancies
-                vacancies = [
-                    Vacancy.model_validate(vacancy) for vacancy in vacancies_data
-                ]
 
                 # Inserting into database
                 insert_models_array("vacancies", cur, vacancies)

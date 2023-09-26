@@ -3,6 +3,8 @@ from psycopg2.extensions import cursor
 from psycopg2.extras import execute_values
 from pydantic import BaseModel
 
+from utils.currency_update import get_current_rates
+
 
 def create_database(database_name: str, params: dict) -> None:
     """Creating database with 'employers' and 'vacancies' tables"""
@@ -44,6 +46,17 @@ def create_database(database_name: str, params: dict) -> None:
                     url VARCHAR,
                     requirement TEXT,
                     responsibility TEXT
+                )
+            """
+            )
+
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                CREATE TABLE currency (
+                    char_code CHAR(3) PRIMARY KEY,
+                    value FLOAT NOT NULL,
+                    name VARCHAR(100) NOT NULL
                 )
             """
             )
@@ -94,3 +107,23 @@ def insert_models_array(table_name: str, cur: cursor, models_array: list[BaseMod
         execute_values(cur, query, values)
     else:
         raise ValueError("Models array can't be empty")
+
+
+def update_currency_table(database_name: str, cur: cursor):
+    """Updates exchange rates"""
+
+    rates_data = get_current_rates()
+
+    rates = [
+        (
+            "BYR" if name == "BYN" else name,
+            value["Value"] / value["Nominal"],
+            value["Name"],
+        )
+        for name, value in rates_data.items()
+    ]
+
+    query = f"INSERT INTO currency (char_code, value, name) VALUES %s"
+    cur.execute("INSERT INTO currency VALUES ('RUR', 1, 'Российский рубль')")
+
+    execute_values(cur, query, rates)
