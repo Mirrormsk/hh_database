@@ -58,22 +58,25 @@ class DBManager:
         return self.execute_query(query)
 
     def get_avg_salary(self):
-        query = """SELECT ROUND((AVG(salary_from) + AVG(salary_to)) / 2)
-                   FROM vacancies
+        query = """SELECT ROUND((AVG(v.salary_from * c.value) + AVG(v.salary_to * c.value)) / 2)
+                   FROM vacancies v
+                   JOIN currency c ON v.salary_currency=c.char_code
                 """
         return self.execute_query(query)
 
     def get_vacancies_with_higher_salary(self):
         query = """
-                 SELECT *
-                 FROM vacancies
-                 WHERE salary_from > (
-                     SELECT (AVG(salary_from) + AVG(salary_to)) / 2 AS avg_salary
-                     FROM vacancies)
-                     OR
-                     salary_to > (
-                     SELECT (AVG(salary_from) + AVG(salary_to)) / 2 AS avg_salary
-                     FROM vacancies)
+                    SELECT *
+                    FROM vacancies v
+                    JOIN currency c ON v.salary_currency=c.char_code
+                    WHERE 
+                        v.salary_from * c.value > (SELECT ROUND((AVG(v.salary_from * c.value) + AVG(v.salary_to * c.value)) / 2)
+                                                   FROM vacancies v
+                                                   JOIN currency c ON v.salary_currency=c.char_code)
+                        OR
+                        v.salary_to * c.value > (SELECT ROUND((AVG(v.salary_from * c.value) + AVG(v.salary_to * c.value)) / 2)
+                                                 FROM vacancies v
+                                                 JOIN currency c ON v.salary_currency=c.char_code)
                """
         return self.execute_query(query)
 
