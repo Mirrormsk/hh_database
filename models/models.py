@@ -56,4 +56,3 @@ class Vacancy(BaseModel):
                 "currency": None,
             }
         return self
-

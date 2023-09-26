@@ -94,6 +94,7 @@ def main():
     # Database manager initialization
     db_manager = DBManager(DATABASE_NAME)
 
+    # Actions to use DBManager
     actions = {
         "Get companies and vacancies count": db_manager.get_companies_and_vacancies_count,
         "Get all vacancies": db_manager.get_all_vacancies,
@@ -103,28 +104,28 @@ def main():
         "Exit": "exit",
     }
 
+    # Actions cycle
     while True:
+
         action = enquiries.choose(
             "Выберете действие:",
             actions,
             multi=False,
         )
+
         if action == "exit":
             break
 
         elif action == db_manager.get_vacancies_with_keyword:
-            keyword = input('Введите строку для поиска -> ')
+            keyword = input("Введите строку для поиска -> ")
             data = action(keyword)
         else:
             data = action()
 
-        # print(data)
-
+        # Show data
         for row in data:
-            print(*row, sep='\n')
+            print(*row, sep="\n")
             print("\n*******\n")
-
-        # print(*data, sep="\n\n*******\n\n")
 
 
 if __name__ == "__main__":

@@ -26,7 +26,7 @@ def get_current_rates() -> dict:
     today = date.today().isoformat()
 
     if not os.path.exists(PATH_TO_JSON):
-        return update_daily_rates()[today]['Valute']
+        return update_daily_rates()[today]["Valute"]
 
     with open(PATH_TO_JSON, "r", encoding="utf-8") as json_in:
         last_rates = json.load(json_in)
@@ -34,4 +34,4 @@ def get_current_rates() -> dict:
     if today not in last_rates.keys():
         last_rates = update_daily_rates()
 
-    return last_rates[today]['Valute']
+    return last_rates[today]["Valute"]

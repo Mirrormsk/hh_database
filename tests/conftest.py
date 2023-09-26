@@ -8,7 +8,7 @@ def employer_json():
 
 @pytest.fixture
 def vacancy_json_with_full_salary():
-    return r'''{
+    return r"""{
   "id": 1,
   "name": "Software Engineer",
   "employer": {
@@ -28,12 +28,12 @@ def vacancy_json_with_full_salary():
     "responsibility": "Develop software"
   }
 }
-'''
+"""
 
 
 @pytest.fixture
 def vacancy_json_without_salary():
-    return r'''{
+    return r"""{
   "id": 1,
   "name": "Software Engineer",
   "employer": {
@@ -49,4 +49,4 @@ def vacancy_json_without_salary():
     "responsibility": "Develop software"
   }
 }
-'''
+"""
