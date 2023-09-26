@@ -89,6 +89,12 @@ def database_create_and_fill():
 
 def main():
 
+    if enquiries.confirm(
+        "Создать и обновить базу данных?"
+    ):
+        database_create_and_fill()
+        print(f"База данных {DATABASE_NAME} создана.\n\n")
+
     # DBManager operations
 
     # Database manager initialization
