@@ -1,30 +1,33 @@
 import os.path
 from typing import Any
 
-from config import config
 import psycopg2
+
+from config import config
 
 
 class DBManager:
     def __init__(self, database_name: str):
         self.database_name = database_name
-        self.params = config(filename=os.path.join("..", "database.ini"))
-        self.conn = psycopg2.connect(dbname=self.database_name, **self.params)
+        self.params = config(filename=os.path.join("database.ini"))
+        # self.conn = psycopg2.connect(dbname=self.database_name, **self.params)
 
     def execute_query(self, query: str) -> list[tuple[Any]]:
         """
-        Получает список всех компаний и количество вакансий у каждой компании
+        Выполняет переданный запрос
         """
         try:
-            with self.conn.cursor() as cur:
-                cur.execute(query)
-                return cur.fetchall()
+            with psycopg2.connect(dbname=self.database_name, **self.params) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query)
+                    return cur.fetchall()
 
         except Exception as ex:
-            print("Ошибка запроса")
+            print("Ошибка запроса:")
+            print(ex)
 
         finally:
-            self.conn.close()
+            conn.close()
 
     def get_companies_and_vacancies_count(self) -> list[tuple[Any]]:
         """
@@ -55,11 +58,10 @@ class DBManager:
         return self.execute_query(query)
 
     def get_avg_salary(self):
-        query = """
-                SELECT (AVG(salary_from) + AVG(salary_to)) / 2 AS avg_salary
-                FROM vacancies
+        query = """SELECT ROUND((AVG(salary_from) + AVG(salary_to)) / 2)
+                   FROM vacancies
                 """
-        return round(self.execute_query(query)[0][0])
+        return self.execute_query(query)
 
     def get_vacancies_with_higher_salary(self):
         query = """

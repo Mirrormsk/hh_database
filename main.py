@@ -1,13 +1,17 @@
+import enquiries
 import psycopg2
 from tqdm import tqdm
 
 from api.hh_api import HeadHunterParser
 from config import config
 from models.models import Employer, Vacancy
-from utils.database import (create_database,
-                            insert_model,
-                            insert_models_array,
-                            update_currency_table)
+from utils.dbmanager import DBManager
+from utils.database import (
+    create_database,
+    insert_model,
+    insert_models_array,
+    update_currency_table,
+)
 
 DATABASE_NAME = "headhunter"
 
@@ -30,8 +34,7 @@ favorites = {
 }
 
 
-def main():
-
+def database_create_and_fill():
     # Database creation
     params = config()
     create_database(DATABASE_NAME, params)
@@ -82,6 +85,46 @@ def main():
                 conn.commit()
 
     conn.close()
+
+
+def main():
+
+    # DBManager operations
+
+    # Database manager initialization
+    db_manager = DBManager(DATABASE_NAME)
+
+    actions = {
+        "Get companies and vacancies count": db_manager.get_companies_and_vacancies_count,
+        "Get all vacancies": db_manager.get_all_vacancies,
+        "Get_avg_salary": db_manager.get_avg_salary,
+        "Get vacancies with higher salary": db_manager.get_vacancies_with_higher_salary,
+        "Get vacancies with keyword": db_manager.get_vacancies_with_keyword,
+        "Exit": "exit",
+    }
+
+    while True:
+        action = enquiries.choose(
+            "Выберете действие:",
+            actions,
+            multi=False,
+        )
+        if action == "exit":
+            break
+
+        elif action == db_manager.get_vacancies_with_keyword:
+            keyword = input('Введите строку для поиска -> ')
+            data = action(keyword)
+        else:
+            data = action()
+
+        # print(data)
+
+        for row in data:
+            print(*row, sep='\n')
+            print("\n*******\n")
+
+        # print(*data, sep="\n\n*******\n\n")
 
 
 if __name__ == "__main__":
