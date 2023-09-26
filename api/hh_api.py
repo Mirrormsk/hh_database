@@ -4,7 +4,7 @@ from utils import get_request_safe
 class HeadHunterParser:
     def __init__(self):
         self.__api_url = "https://api.hh.ru/"
-        self.__user_agent = "VacancyHelperApp/0.1"
+        self.__user_agent = "VacancyHelperApp/1.0"
         self.__host = "hh.ru"
         self.__headers = {"HH-User-Agent": self.__user_agent}
         # self.search_params = {}
