@@ -48,41 +48,41 @@ def database_create_and_fill():
         # Start to pull data from api
         for employer_name, employer_id in tqdm(favorites.items(), desc="Loading data"):
 
-            try:
+            # try:
                 # Get company info from api
-                data = api.get_employer_info(employer_id)
+            data = api.get_employer_info(employer_id)
 
-                # Validation and model creation
-                employer = Employer.model_validate(data)
+            # Validation and model creation
+            employer = Employer.model_validate(data)
 
-                # Insert company info into table employers
-                insert_model("employers", cur, employer)
-                conn.commit()
+            # Insert company info into table employers
+            insert_model("employers", cur, employer)
+            conn.commit()
 
-                # Getting company vacancies
-                vacancies_data = api.get_vacancies_by_employer(employer_id)
+            # Getting company vacancies
+            vacancies_data = api.get_vacancies_by_employer(employer_id)
 
-                # List for Vacancy models
-                vacancies = []
+            # List for Vacancy models
+            vacancies = []
 
-                # Validate each vacancies separately
-                for vacancy in vacancies_data:
-                    try:
-                        vacancy_obj = Vacancy.model_validate(vacancy)
-                        vacancies.append(vacancy_obj)
-                    except Exception as ex:
-                        print(f"Error in vacancy:")
-                        print(vacancy)
-                        print(f"Error message:\n{ex}")
+            # Validate each vacancies separately
+            for vacancy in vacancies_data:
+                try:
+                    vacancy_obj = Vacancy.model_validate(vacancy)
+                    vacancies.append(vacancy_obj)
+                except Exception as ex:
+                    print(f"Error in vacancy:")
+                    print(vacancy)
+                    print(f"Error message:\n{ex}")
 
-                # Inserting into database
-                insert_models_array("vacancies", cur, vacancies)
+            # Inserting into database
+            insert_models_array("vacancies", cur, vacancies)
 
-            except Exception as ex:
-                print(f"Ошибка получения данных по работодателю {employer_name}")
-                print(ex)
-            else:
-                conn.commit()
+            # except Exception as ex:
+            #     print(f"Ошибка получения данных по работодателю {employer_name}")
+            #     print(ex)
+            # else:
+            conn.commit()
 
     conn.close()
 

@@ -1,3 +1,5 @@
+import time
+
 from utils import get_request_safe
 
 
@@ -7,6 +9,7 @@ class HeadHunterParser:
         self.__user_agent = "VacancyHelperApp/1.0"
         self.__host = "hh.ru"
         self.__headers = {"HH-User-Agent": self.__user_agent}
+        self.delay = 15
         # self.search_params = {}
 
     def _get_vacancies_page_data(self, employer_id: str, page: int) -> dict:
@@ -34,7 +37,17 @@ class HeadHunterParser:
         if total_pages > 1:
 
             for page in range(1, total_pages):
-                page_items = self._get_vacancies_page_data(employer_id, page)["items"]
+                page_response = self._get_vacancies_page_data(employer_id, page)
+
+                # In case of captcha requiring
+                if "errors" in page_response:
+                    print(
+                        f"Seems like captcha required. Sleeping {self.delay} seconds..."
+                    )
+                    time.sleep(self.delay)
+                    page_response = self._get_vacancies_page_data(employer_id, page)
+
+                page_items = page_response["items"]
                 items.extend(page_items)
 
         return items
