@@ -3,6 +3,8 @@ import psycopg2
 from psycopg2.extras import execute_values
 from pydantic import BaseModel
 
+from psycopg2.extensions import cursor
+
 
 def create_database(database_name: str, params: dict) -> None:
     """Creating database with 'employers' and 'vacancies' tables"""
@@ -35,7 +37,7 @@ def create_database(database_name: str, params: dict) -> None:
                 """
                 CREATE TABLE vacancies (
                     id SERIAL PRIMARY KEY,
-                    name VARCHAR NOT NULL
+                    name VARCHAR NOT NULL,
                     employer_id INT REFERENCES employers(id),
                     area VARCHAR(100),
                     salary_from INT,
@@ -57,10 +59,10 @@ def get_fieldnames(model: BaseModel):
 
 def get_values(model: BaseModel):
     """Returns string representation for tuple with model values"""
-    return str(tuple(model.model_dump().values()))
+    return tuple(model.model_dump().values())
 
 
-def insert_model(table_name: str, cur: psycopg2.cursor, model: BaseModel):
+def insert_model(table_name: str, cur: cursor, model: BaseModel):
     """Insert one model to database"""
     # Making string with fieldnames
     fieldnames = get_fieldnames(model)
@@ -69,14 +71,14 @@ def insert_model(table_name: str, cur: psycopg2.cursor, model: BaseModel):
     model_values = get_values(model)
 
     # Generating query
-    query = f"INSERT INTO {table_name} {fieldnames} VALUES %s"
+    query = f"INSERT INTO {table_name} {fieldnames} VALUES ({', '.join(['%s'] * len(model_values))})"
 
     # Executing query
     cur.execute(query, model_values)
 
 
 def insert_models_array(
-    table_name: str, cur: psycopg2.cursor, models_array: list[BaseModel]
+    table_name: str, cur: cursor, models_array: list[BaseModel]
 ):
     """
     Insert array of models to database.
@@ -93,3 +95,4 @@ def insert_models_array(
         execute_values(cur, query, values)
     else:
         raise ValueError("Models array can't be empty")
+

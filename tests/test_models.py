@@ -1,4 +1,4 @@
-from models.models import Employer
+from models.models import Employer, Vacancy
 
 
 def test_Employer(employer_json):
@@ -6,6 +6,11 @@ def test_Employer(employer_json):
     emp = Employer.model_validate_json(employer_json)
 
     assert isinstance(emp, Employer)
-    print('Fields:\n')
-    print(tuple(emp.model_dump().values()))
+    # print('Fields:\n')
+    # print(tuple(emp.model_dump().values()))
+
+
+
+
+
 
